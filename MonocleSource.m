@@ -81,7 +81,7 @@ static NSURL *_MonocleBaseURL(const NSURL *const url)
   NSImage *icon = [NSUnarchiver unarchiveObjectWithData:data];
   NSDictionary *attrs
     = [NSDictionary dictionaryWithObjectsAndKeys:
-       url, kHGSObjectAttributeSourceURLKey,
+//       url, kHGSObjectAttributeSourceURLKey,
        icon, kHGSObjectAttributeIconKey,
        template, kHGSObjectAttributeWebSearchTemplateKey, nil];
   HGSResult *result = [HGSResult resultWithURL:url
