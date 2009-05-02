@@ -15,7 +15,7 @@ static NSString *const kMonocleEngineURLKey = @"get_URL";
 static NSString *const kMonocleEngineIconKey = @"icon";
 static NSString *const kMonocleValidEnginePredicateFormat = @"type == 'GET'";
 
-static NSURL *_MonocleBaseURL(const NSURL *url)
+static NSURL *_MonocleBaseURL(const NSURL *const url)
 {
   NSString *urlString
     = [NSString stringWithFormat:@"%@://%@", [url scheme], [url host]];
