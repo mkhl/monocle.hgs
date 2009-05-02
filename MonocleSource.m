@@ -89,7 +89,7 @@ static NSURL *_MonocleBaseURL(const NSURL *const url)
                                           type:kHGSTypeWebpage
                                         source:self
                                     attributes:attrs];
-  [self indexResult:result name:name otherTerm:shortcut];
+  [self indexResult:result name:shortcut otherTerm:name];
 }
 
 @end
