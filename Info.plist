@@ -24,7 +24,7 @@
 			<key>HGSExtensionClass</key>
 			<string>MonocleSource</string>
 			<key>HGSExtensionIdentifier</key>
-			<string>org.purl.net.mkhl.source.Monocle</string>
+			<string>org.purl.net.mkhl.monocle.source</string>
 			<key>HGSExtensionPoint</key>
 			<string>HGSSourcesExtensionPoint</string>
 			<key>HGSExtensionUserVisibleName</key>
