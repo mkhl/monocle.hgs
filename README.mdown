@@ -1,18 +1,19 @@
 # Monocle Plugin for Google QSB
 
-A [Google Quick Search Box][qsb] plugin to enable access to all your
-[Monocle][] search engines.
+A [Google Quick Search Box][qsb] plugin to enable access to your [Monocle][]
+search engines.
 
 ## Usage
 
 * Hit you QSB keyboard shortcut.
-* Type the name (or callword) of any of the search engines you have configured
-  in [Monocle][].
-* Choose the matching object from the result list and *tab* into it.
+* Type the (partial) name or callword of any search engines you have
+  configured in [Monocle][].
+* Select the matching object from the result list
+* *Tab* into it.
 * Type a phrase to search for with that engine.
-* Hit enter to perform the search.
+* Hit *enter* to perform the search.
 
-## Installation Instructions
+## Installation
 
 After extracting the plugin, you will find a bundle called `Monocle.hgs`. Copy
 this bundle to `~/Library/Application Support/Google/Quick Search
@@ -21,7 +22,7 @@ Box/PlugIns`, then restart QSB.
 If you built the plugin from source (described below), you will find the
 `Monocle.hgs` bundle in your `build` directory.
 
-## Build Instructions
+## Building
 
 Building this plugin requires that you set up two source trees in Xcode. You
 will have to have the QuickSearchBox source tree downloaded to your machine.
