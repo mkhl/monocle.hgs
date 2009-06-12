@@ -68,7 +68,6 @@ static NSURL *_MonocleBaseURL(const NSURL *const url)
 - (void) indexResultForEngine:(NSDictionary *)engine
 {
   NSString *name = [engine objectForKey:kMonocleEngineNameKey];
-  NSString *shortcut = [engine objectForKey:kMonocleEngineShortcutKey];
   NSString *urlFormat = [engine objectForKey:kMonocleEngineURLKey];
   NSString *template
     = [urlFormat stringByReplacingOccurrencesOfString:@"%@"
@@ -89,7 +88,7 @@ static NSURL *_MonocleBaseURL(const NSURL *const url)
                                           type:kHGSTypeWebpage
                                         source:self
                                     attributes:attrs];
-  [self indexResult:result name:shortcut otherTerm:name];
+  [self indexResult:result];
 }
 
 @end
