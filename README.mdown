@@ -3,6 +3,8 @@
 A [Google Quick Search Box][qsb] plugin to enable access to your [Monocle][]
 search engines.
 
+**Download the plugin: <http://github.com/mkhl/monocle.hgs/downloads>**
+
 ## Usage
 
 * Hit you QSB keyboard shortcut.
