@@ -24,48 +24,45 @@ static NSURL *_MonocleBaseURL(const NSURL *const url)
 
 
 @interface MonocleSource : HGSMemorySearchSource
-- (BOOL) loadMonocleEngines;
-- (void) indexResultForEngine:(NSDictionary *)engine;
+- (void)recacheContents;
+- (void)indexResultForEngine:(NSDictionary *)engine;
 @end
 
 @implementation MonocleSource
 
-- (id) initWithConfiguration:(NSDictionary *)configuration
+- (id)initWithConfiguration:(NSDictionary *)configuration
 {
   self = [super initWithConfiguration:configuration];
   if (self == nil)
     return nil;
-  if (![self loadMonocleEngines]) {
-    HGSLogDebug(@"Unable to load Monocle Search Engines");
-    [self release];
-    return nil;
+  if (![self loadResultsCache]) {
+    [self recacheContents];
+  } else {
+    [self performSelector:@selector(recacheContents)
+               withObject:nil
+               afterDelay:10.0];
   }
   return self;
 }
 
-- (BOOL) loadMonocleEngines
+- (void)recacheContents
 {
   [self clearResultIndex];
-  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  NSDictionary *settings
-    = [defaults persistentDomainForName:kMonocleBundleIdentifier];
-  if (settings == nil) {
-    return NO;
-  }
+  NSDictionary *settings = [[NSUserDefaults standardUserDefaults]
+                            persistentDomainForName:kMonocleBundleIdentifier];
   NSPredicate *predicate
     = [NSPredicate predicateWithFormat:kMonocleValidEnginePredicateFormat];
   NSArray *engines = [[settings objectForKey:kMonocleEnginesKey]
                       filteredArrayUsingPredicate:predicate];
-  if ((engines == nil) || ([engines count] == 0)) {
-    return NO;
-  }
   for (NSDictionary *engine in engines) {
     [self indexResultForEngine:engine];
   }
-  return YES;
+  [self performSelector:@selector(recacheContents)
+             withObject:nil
+             afterDelay:60.0];
 }
 
-- (void) indexResultForEngine:(NSDictionary *)engine
+- (void)indexResultForEngine:(NSDictionary *)engine
 {
   NSString *name = [engine objectForKey:kMonocleEngineNameKey];
   NSString *urlFormat = [engine objectForKey:kMonocleEngineURLKey];
