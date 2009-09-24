@@ -15,11 +15,20 @@ static NSString *const kMonocleEngineURLKey = @"get_URL";
 static NSString *const kMonocleEngineIconKey = @"icon";
 static NSString *const kMonocleValidEnginePredicateFormat = @"type == 'GET'";
 
-static NSURL *_MonocleBaseURL(const NSURL *const url)
+static NSPredicate *_MonocleValidEnginePredicate(void)
 {
-  NSString *urlString
-    = [NSString stringWithFormat:@"%@://%@", [url scheme], [url host]];
-  return [NSURL URLWithString:urlString];
+  return [NSPredicate predicateWithFormat:kMonocleValidEnginePredicateFormat];
+}
+
+static NSString *_MonocleItemTemplate(NSString *const urlFormat)
+{
+  return [urlFormat stringByReplacingOccurrencesOfString:@"%@" withString:@"{searchterms}"];
+}
+
+static NSURL *_MonocleItemURL(NSString *const urlFormat)
+{
+  NSURL *url = [NSURL URLWithString:[urlFormat stringByReplacingOccurrencesOfString:@"%@" withString:@"magic"]];
+  return [NSURL URLWithString:[NSString stringWithFormat:@"%@://%@", [url scheme], [url host]]];
 }
 
 
@@ -48,11 +57,9 @@ static NSURL *_MonocleBaseURL(const NSURL *const url)
   [self clearResultIndex];
   NSDictionary *settings = [[NSUserDefaults standardUserDefaults]
                             persistentDomainForName:kMonocleBundleIdentifier];
-  NSPredicate *predicate
-    = [NSPredicate predicateWithFormat:kMonocleValidEnginePredicateFormat];
-  NSArray *engines = [[settings objectForKey:kMonocleEnginesKey]
-                      filteredArrayUsingPredicate:predicate];
-  for (NSDictionary *engine in engines)
+  NSArray *engines = [settings objectForKey:kMonocleEnginesKey];
+  NSPredicate *predicate = _MonocleValidEnginePredicate();
+  for (NSDictionary *engine in [engines filteredArrayUsingPredicate:predicate])
     [self indexResultForEngine:engine];
   [self recacheContentsAfterDelay:60.0];
 }
@@ -66,28 +73,20 @@ static NSURL *_MonocleBaseURL(const NSURL *const url)
 
 - (void)indexResultForEngine:(NSDictionary *)engine
 {
+  NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
   NSString *name = [engine objectForKey:kMonocleEngineNameKey];
   NSString *urlFormat = [engine objectForKey:kMonocleEngineURLKey];
-  NSString *template
-    = [urlFormat stringByReplacingOccurrencesOfString:@"%@"
-                                           withString:@"{searchterms}"];
-  NSString *urlString
-    = [urlFormat stringByReplacingOccurrencesOfString:@"%@"
-                                           withString:@"magic"];
-  NSURL *url = _MonocleBaseURL([NSURL URLWithString:urlString]);
+  NSString *template = _MonocleItemTemplate(urlFormat);
+  [attrs setObject:template forKey:kHGSObjectAttributeWebSearchTemplateKey];
+  NSURL *url = _MonocleItemURL(urlFormat);
   NSData *data = [engine objectForKey:kMonocleEngineIconKey];
   NSImage *icon = [NSUnarchiver unarchiveObjectWithData:data];
-  NSDictionary *attrs
-    = [NSDictionary dictionaryWithObjectsAndKeys:
-//       url, kHGSObjectAttributeSourceURLKey,
-       icon, kHGSObjectAttributeIconKey,
-       template, kHGSObjectAttributeWebSearchTemplateKey, nil];
-  HGSResult *result = [HGSResult resultWithURL:url
-                                          name:name
-                                          type:kHGSTypeWebpage
-                                        source:self
-                                    attributes:attrs];
-  [self indexResult:result];
+  if (icon) [attrs setObject:icon forKey:kHGSObjectAttributeIconKey];
+  [self indexResult:[HGSResult resultWithURL:url
+                                        name:name
+                                        type:kHGSTypeWebpage
+                                      source:self
+                                  attributes:attrs]];
 }
 
 @end
