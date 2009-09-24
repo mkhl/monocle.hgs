@@ -25,6 +25,7 @@ static NSURL *_MonocleBaseURL(const NSURL *const url)
 
 @interface MonocleSource : HGSMemorySearchSource
 - (void)recacheContents;
+- (void)recacheContentsAfterDelay:(NSTimeInterval)delay;
 - (void)indexResultForEngine:(NSDictionary *)engine;
 @end
 
@@ -35,13 +36,10 @@ static NSURL *_MonocleBaseURL(const NSURL *const url)
   self = [super initWithConfiguration:configuration];
   if (self == nil)
     return nil;
-  if (![self loadResultsCache]) {
+  if ([self loadResultsCache])
+    [self recacheContentsAfterDelay:10.0];
+  else
     [self recacheContents];
-  } else {
-    [self performSelector:@selector(recacheContents)
-               withObject:nil
-               afterDelay:10.0];
-  }
   return self;
 }
 
@@ -54,12 +52,16 @@ static NSURL *_MonocleBaseURL(const NSURL *const url)
     = [NSPredicate predicateWithFormat:kMonocleValidEnginePredicateFormat];
   NSArray *engines = [[settings objectForKey:kMonocleEnginesKey]
                       filteredArrayUsingPredicate:predicate];
-  for (NSDictionary *engine in engines) {
+  for (NSDictionary *engine in engines)
     [self indexResultForEngine:engine];
-  }
+  [self recacheContentsAfterDelay:60.0];
+}
+
+- (void)recacheContentsAfterDelay:(NSTimeInterval)delay
+{
   [self performSelector:@selector(recacheContents)
              withObject:nil
-             afterDelay:60.0];
+             afterDelay:delay];
 }
 
 - (void)indexResultForEngine:(NSDictionary *)engine
