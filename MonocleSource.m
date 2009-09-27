@@ -15,11 +15,6 @@ static NSString *const kMonocleEngineURLKey = @"get_URL";
 static NSString *const kMonocleEngineIconKey = @"icon";
 static NSString *const kMonocleValidEnginePredicateFormat = @"type == 'GET'";
 
-static NSPredicate *_MonocleValidEnginePredicate(void)
-{
-  return [NSPredicate predicateWithFormat:kMonocleValidEnginePredicateFormat];
-}
-
 static NSString *_MonocleItemTemplate(NSString *const urlFormat)
 {
   return [urlFormat stringByReplacingOccurrencesOfString:@"%@" withString:@"{searchterms}"];
@@ -43,32 +38,33 @@ static NSURL *_MonocleItemURL(NSString *const urlFormat)
 - (id)initWithConfiguration:(NSDictionary *)configuration
 {
   self = [super initWithConfiguration:configuration];
-  if (self == nil)
-    return nil;
-  if ([self loadResultsCache])
-    [self recacheContentsAfterDelay:10.0];
-  else
-    [self recacheContents];
+  if (self) {
+    if ([self loadResultsCache]) {
+      [self recacheContentsAfterDelay:10.0];
+    } else {
+      [self recacheContents];
+    }
+  }
   return self;
 }
 
 - (void)recacheContents
 {
   [self clearResultIndex];
-  NSDictionary *settings = [[NSUserDefaults standardUserDefaults]
-                            persistentDomainForName:kMonocleBundleIdentifier];
-  NSArray *engines = [settings objectForKey:kMonocleEnginesKey];
-  NSPredicate *predicate = _MonocleValidEnginePredicate();
-  for (NSDictionary *engine in [engines filteredArrayUsingPredicate:predicate])
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSDictionary *dict = [defaults persistentDomainForName:kMonocleBundleIdentifier];
+  NSArray *engines = [dict objectForKey:kMonocleEnginesKey];
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:kMonocleValidEnginePredicateFormat];
+  for (NSDictionary *engine in [engines filteredArrayUsingPredicate:predicate]) {
     [self indexResultForEngine:engine];
+  }
   [self recacheContentsAfterDelay:60.0];
 }
 
 - (void)recacheContentsAfterDelay:(NSTimeInterval)delay
 {
-  [self performSelector:@selector(recacheContents)
-             withObject:nil
-             afterDelay:delay];
+  SEL action = @selector(recacheContents);
+  [self performSelector:action withObject:nil afterDelay:delay];
 }
 
 - (void)indexResultForEngine:(NSDictionary *)engine
